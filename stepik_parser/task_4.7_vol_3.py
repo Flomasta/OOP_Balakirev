@@ -1,7 +1,11 @@
-# Привет! Продолжаю извращаться над заданием как могу:).
-# Интересно было попробовать написать что то унифицированное,
+# Привет! Вкратце: очень сильно переусложнил:)
+# Сдедал немного не по заданию, но результат можно получить как по заданию, так и немного пошире.
+# Продолжаю писать что то унифицированное,
 # чтобы работало не только на одном сайте, ну или на одном, но при некоторых отличных условиях
 # не уверен, что получилось хорошо, так как при подробном рассмотрении повылезает куча косяков, но я пытался))
+# В итоге, я сам себе додумал, написать рабочий код, на случай если будет несколько вложенных списков,
+# чтобы при этом и условия задания выполнялись. Такой вариант виден в ul description и div sale.
+# Ниже в коде я прокомментирую это.
 
 import json
 import requests
@@ -11,6 +15,8 @@ domain = 'http://stepik-parsing.ru/html/'
 default_url = 'http://stepik-parsing.ru/html/index4_page_1.html'
 encoding = 'utf-8'
 attr_to_replace = {'p_header': 'name', 'in_stock': 'count'}
+attr_to_remove_list = ['sale_button']
+attr_to_remove_dict = {'sale': 'sale_button'}
 
 
 def cooking_soup(url=default_url):
@@ -45,26 +51,41 @@ def get_item_cards():
 
 
 def check_attr(attr):
+    ''' Проверяет  имеем перед собой class или id. Сlass возвращает
+        список, а не строку, список не может быть ключом словаря.Если указан class функция возвращет первое попавшееся
+        значение атрибута.'''
     var = list(attr.attrs.items())[0][1]
     return var[0] if attr.has_attr('class') else var
 
 
 def get_inner_items(attr):
+    ''' данная функция возвращает словарь из дочерних элементов, если они есть.'''
     inner_attr = check_attr(attr)
-    # функцией check_attr проверяю имеем перед собой class или id, class возвращает
-    # список, а не строку, список не может быть ключом словаря,поэтому беру первое попавшееся
-    # значение атрибута.
+    if inner_attr in attr_to_replace:
+        inner_attr = attr_to_replace[inner_attr]
+    # enclosure = {
+    #     inner_attr: {list(j.attrs.values())[0]: j.text.split(':', 1)[1] if ':' in j.text else j.text
+    #                  for j in
+    #                  attr.find_all()}}
+    enclosure = {inner_attr: {}}
+    for i in attr.find_all():
+        txt = i.text.split(':', 1)[1] if ':' in i.text else i.text
+        i_inner = list(i.attrs.values())[0]
+        if i_inner in attr_to_replace:
+            i_inner = attr_to_replace[i_inner]
+        enclosure[inner_attr].update({i_inner: txt})
 
-    enclosure = {
-        inner_attr: {list(j.attrs.values())[0]: j.text.split(':', 1)[1] if ':' in j.text else j.text
-                     for j in
-                     attr.find_all()}}
     # создаём словарь "значение_атрибута":"описание", конструкция list здесь используется т.к values возвращает
     # объект-представление, к нему по индексу не достучаться:)
     return enclosure
 
 
-def get_items_attr():
+def get_items_attr(deep=1, counter=0):
+    '''значение deep указывает на количество необходимых нам вложенных атрибутов в файле json, если deep = 0, то получим плоский
+        список, если 1, то вернёт первый попавшийся список с дочерними элементами в виде ключ - родительский элемент и значение в виде словаря, состоящего из дочерних
+        элементов, остальные значения по коду будут без вложений(т.е это условие задания), если указать 2, то вернёт json, в котором будет 2 списка с вложениями.
+        Если будет интересно, попробуйте, запустить мой код и поменять в нём значение deep'''
+
     items = get_item_cards()
     result = []
     for page in items:
@@ -73,38 +94,42 @@ def get_items_attr():
             soup = cooking_soup(url)
             description = soup.find('div', class_='description')
             category = get_category()
-            diction = {'category': category}
+            dictionary = {'category': category}
             for line in description:
                 if isinstance(line, Tag):
                     # пришлось прописать небольшой костылик с br, так как в некоторых названиях встречается пара
                     # таких вложенных тегов
-                    print(line)
                     if line.find_all() and not line.find('br'):
+                        if counter < deep:
+                            counter += 1
+                            enclosure = get_inner_items(line)
+                            print(enclosure)
+                            dictionary.update(enclosure)
+                            # в зависимости от необходимости вывода, удаляю ненужные элементы, в данном случае кнопку
+                            # Купить. Для плоского списка использую список значений, для вложенного - словарь. Сделал так
+                            # чтобы редактировать всё это дело в одном месте и не бегать по коду в случае необходимости
 
-                        inner_attr = check_attr(line)
-                        # функцией check_attr проверяю имеем перед собой class или id, class возвращает
-                        # список, а не строку, список не может быть ключом словаря,поэтому беру первое попавшееся
-                        # значение атрибута.
+                        elif counter >= deep:
+                            for i in line.find_all():
+                                dictionary.update({i['id']: i.text})
 
-                        enclosure = {
-                            inner_attr: {list(j.attrs.values())[0]: j.text.split(':', 1)[1] if ':' in j.text else j.text
-                                         for j in
-                                         line.find_all()}}
-                        # создаём словарь "значение_атрибута":"описание", конструкция list здесь используется т.к values возвращает
-                        # объект-представление, к нему по индексу не достучаться:)
 
-                        diction.update(enclosure)
                     else:
                         single_attr = check_attr(line)
                         if single_attr in attr_to_replace:
                             single_attr = attr_to_replace[single_attr]
-                        diction.update({single_attr: line.text.split(':', 1)[1] if ':' in line.text else line.text})
+                        dictionary.update({single_attr: line.text.split(':', 1)[1] if ':' in line.text else line.text})
 
-            diction['sale'].pop('sale_button', None)
-            diction.update({'link': url})
-            # Не нашёл лучше способа избавиться от кнопки "Купить"
+                    for k, v in attr_to_remove_dict.items():
+                        if dictionary.get(k):
+                            dictionary[k].pop(v, None)
+                    for item_to_remove in attr_to_remove_list:
+                        if dictionary.get(item_to_remove):
+                            dictionary.pop(item_to_remove, None)
 
-            result.append(diction)
+            dictionary.update({'link': url})
+
+            result.append(dictionary)
     return result
 
 
