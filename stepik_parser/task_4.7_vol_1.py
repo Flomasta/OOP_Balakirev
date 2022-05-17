@@ -27,10 +27,14 @@ def get_description():
         url = f'{domain}{i}'
         soup = cooking_soup(url)
         names = [name.text for name in soup.find_all('a', class_='name_item')]
-        description = [[prop.text.split('\n') for prop in soup.find('div', class_='description').find_all('li')]]
+        description = [[i.text.split('\n') for i in prop.find_all('li')] for prop in
+                       soup.find_all('div', class_='description')]
+
         price = [price.text for price in soup.find_all('p', class_='price')]
         # я тут слегка перемудрил:)
+        
         for names, description, price in zip(names, description, price):
+            res = {**{'name': names}, **dict([i.split(':') for prop in description for i in prop]), **{'price': price}}
             result.append(
                 {**{'name': names}, **dict([i.split(':') for prop in description for i in prop]), **{'price': price}})
     return result
