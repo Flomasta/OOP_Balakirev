@@ -50,32 +50,20 @@ class LinkedList:
     def add_obj(self, obj):
         '''- добавление нового объекта obj класса ObjList в конец связного списка;'''
         # если инициализируем head
+        self.data.append(obj.get_data())
+        if self.head:
+            obj.set_prev(self.tail)
+            self.tail.set_next(obj)
+            self.tail = obj
 
-        if self.head == None:
-            self.head = obj
-            self.data.append(obj.get_data())
-        # Задаём next head
-        elif self.head.get_next() == None:
-            self.head.set_next(obj)
-            obj.set_prev(self.head)
-
-            self.data.append(obj.get_data())
-            self.current = obj
-        # Все остальные случаи
         else:
-            obj.set_prev(self.current)
-            self.current.set_next(obj)
-
-            self.data.append(obj.get_data())
-            self.current = obj
-        if obj.get_next() == None:
+            self.head = obj
             self.tail = obj
 
     def remove_obj(self):
         '''- удаление последнего объекта из связного списка;'''
-        # self.tail.set_prev(None)
-        self.tail.get_prev().set_next(None)
-        self.tail.set_prev(None)
+        self.tail = self.tail.get_prev()
+        self.tail.set_next(None)
         self.data.pop()
 
     def get_data(self):
@@ -118,4 +106,6 @@ lst.add_obj(ObjList("данные 5"))
 
 res = lst.get_data()
 
-lst.remove_obj()
+
+print(lst)
+print(res)
