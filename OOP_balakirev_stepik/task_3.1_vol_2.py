@@ -27,7 +27,7 @@ class Product:
         Product.__id += 1
 
     def __setattr__(self, key, value):
-        if type(value) == self.d[key] and str(value).find('-'):
+        if key in self.d and type(value) == self.d[key] and str(value).find('-'):
 
             self.__dict__[key] = value
         else:
