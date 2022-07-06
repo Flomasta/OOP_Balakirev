@@ -1,3 +1,2 @@
-s = 'Кошка'
-
-print(s[::-1].lower().capitalize())
+a = 'hello'
+print(a.find('-'))
