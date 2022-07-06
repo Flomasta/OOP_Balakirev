@@ -28,7 +28,6 @@ class Product:
 
     def __setattr__(self, key, value):
         if key in self.d and type(value) == self.d[key] and str(value).find('-'):
-
             self.__dict__[key] = value
         else:
             raise TypeError("Неверный тип присваиваемых данных.")
