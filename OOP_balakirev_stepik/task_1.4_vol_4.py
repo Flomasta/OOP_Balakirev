@@ -16,3 +16,7 @@ class DataBase:
 
 db = DataBase()
 print(db.insert(lst_in))
+
+'''
+
+'''
