@@ -1,23 +1,8 @@
-class Translator:
-
-    def add(self, eng, rus):
-        self.__dict__.setdefault(eng, []).append(rus)
-
-    def remove(self, eng):
-        if self.__dict__.get(eng):
-            delattr(self, eng)
-
-    def translate(self, eng):
-        return self.__dict__.get(eng)
-
-
-tr = Translator()
-tr.add("tree", "дерево")
-tr.add("car", "машина")
-tr.add("car", "автомобиль")
-tr.add("leaf", "лист")
-tr.add("river", "река")
-tr.add("go", "идти")
-tr.add("go", "ехать")
-tr.add("go", "ходить")
-tr.add("milk", "молоко")
+lst = [3600, 60, 1]
+final = []
+n = int(input())
+for i in lst:
+    current = n // i
+    final.append(str(current) if i == 3600 else str(current).zfill(2))
+    n -= i * current
+print(':'.join(final))

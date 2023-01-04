@@ -16,8 +16,11 @@ P.S. На экран ничего выводить не нужно.'''
 
 
 class Clock:
+    MIN_TIME = 0
+    MAX_TIME = 100_000
+
     def __init__(self, time=0):
-        self.__time = time
+        self.__time = time if self.__check_time(time) else 0
 
     def set_time(self, tm):
         if self.__check_time(tm):
@@ -28,7 +31,7 @@ class Clock:
 
     @classmethod
     def __check_time(cls, tm):
-        if isinstance(tm, int) and 100_000 >= tm >= 0:
+        if isinstance(tm, int) and cls.MAX_TIME >= tm >= cls.MIN_TIME:
             return True
 
 
