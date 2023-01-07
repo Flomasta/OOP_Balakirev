@@ -1,8 +1,4 @@
-class Notes:
-    uid = 1005435
-    title = "Шутка"
-    author = "И.С. Бах"
-    pages = 2
 
-
-print(getattr(Notes, 'author'))
+tables = [lambda x=x: x*10 for x in range(1, 11)]
+for table in tables:
+    print(table())

@@ -18,7 +18,7 @@ class GeyserClassic:
                 self.filters[i] = None
 
     def get_filters(self):
-        return sorted(tuple(self.filters.values()), key=lambda x: self.filters.keys())
+        return tuple(self.filters.values())
 
     def water_on(self):
         # при заполненных слотах вернёт пустой список, что равносильно True
@@ -77,3 +77,5 @@ f1, f2, f3 = my_water.get_filters()  # f1, f2, f3 - ссылки на соотв
 my_water.add_filter(3, Calcium(time()))  # повторное добавление в занятый слот невозможно
 my_water.add_filter(2, Calcium(time()))  # добавление в "чужой" слот также невозможно
 print(my_water.get_filters())
+
+# п
