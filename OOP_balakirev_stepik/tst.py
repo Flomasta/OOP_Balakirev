@@ -1,4 +1,2 @@
-
-tables = [lambda x=x: x*10 for x in range(1, 11)]
-for table in tables:
-    print(table())
+[1, 2, -4, 6, 10, 11, 15, False, True]
+[0, 1, 2, 3, True]
